@@ -16,7 +16,7 @@ int main() {
     for (auto const c : range('a', 'd'))
         cout << c << "\n";
 
-    for (auto const u : range(20u, 30u).step(2u))
+    for (auto const u : range(20u, 29u).step(2u))
         cout << u << "\n";
 
     for (auto const i : range(100).step(-3))

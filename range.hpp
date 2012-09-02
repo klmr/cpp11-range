@@ -64,6 +64,16 @@ struct range_proxy {
                 return copy;
             }
 
+            // Loses commutativity. Iterator-based ranges are simply broken. :-(
+            bool operator ==(iter const& other) const {
+                return step > 0 ? current >= other.current
+                                : current < other.current;
+            }
+
+            bool operator !=(iter const& other) const {
+                return not (*this == other);
+            }
+
         private:
             T step;
         };
