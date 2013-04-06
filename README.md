@@ -14,17 +14,17 @@ C++11 effortlessly allows the same but there is no standard library function to 
 The header `range.hpp` provides a very basic implementation for this. It allows running the following code:
 
 ```c++
-for (auto const i : range(1, 5))
+for (auto i : range(1, 5))
     cout << i << "\n";
 
-for (auto const u : range(0u))
+for (auto u : range(0u))
     if (u == 3u) break;
     else         cout << u << "\n";
 
-for (auto const c : range('a', 'd'))
+for (auto c : range('a', 'd'))
     cout << c << "\n";
 
-for (auto const i : range(100).step(-3))
+for (auto i : range(100).step(-3))
     if (i < 90) break;
     else        cout << i << "\n";
 ```
