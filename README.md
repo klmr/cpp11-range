@@ -53,12 +53,17 @@ The construct works for arbitrary types which fulfil the interface requirements 
 
 ## Performance (the cost of beauty)
 
-I haven’t done a thorough analysis but the disassembly of a very similar code shows that the above compiles down to **identical** code to a classical `for` loop; that is, the first above code produces equivalent machine code to
+When compiling with optimisations enabled (and why wouldn’t you?), using the `range` function yield very similar output compared with a manual `for` loop. In fact, on g++ 4.8 with `-O2` or higher, *the following two loops yield identical assembly*.
 
 ```c++
-for (int i = 0; i < 5; ++i)
-    cout << i << "\n";
+for (int i = 0; i < n; ++i)
+    cout << i;
+
+for (int i : range(0, n))
+    cout << i;
 ```
+
+Even though the `range` function creates a proxy container and an iterator wrapper, those are completely elided from the resulting code.
 
 **☞ Beauty is free.**
 
