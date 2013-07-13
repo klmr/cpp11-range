@@ -11,7 +11,7 @@ for i in range(10):
 
 Which does what it promises – although Python version < 3.0 does the “wrong” thing and actually instantiates the whole collection in memory at once; a remedy is `xrange` which yields values lazily as they are consumed by the loop.
 
-C++11 effortlessly allows the same but there is no standard library function to provide this. Boost.Range provides *part* of the functionality via `irange` which only works on integers, and not for unlimited ranges (this will make sense in a second).
+C++11 effortlessly allows the same but there is no standard library function to provide this. [Boost.Range][] provides *part* of the functionality via `irange` which only works on integers, and not for unlimited ranges (this will make sense in a second).
 
 The header `range.hpp` provides a very basic implementation for this. It allows running the following code:
 
@@ -61,3 +61,5 @@ for (int i = 0; i < 5; ++i)
 ```
 
 **☞ Beauty is free.**
+
+[Boost.Range]: http://www.boost.org/doc/libs/1_54_0/libs/range/doc/html/index.html
