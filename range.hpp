@@ -2,6 +2,7 @@
 #define UTIL_LANG_RANGE_HPP
 
 #include <iterator>
+#include <type_traits>
 
 namespace util { namespace lang {
 
@@ -93,7 +94,7 @@ struct range_proxy {
     range_proxy(T begin, T end) : begin_(begin), end_(end) { }
 
     step_range_proxy step(T step) {
-        return step_range_proxy(*begin_, *end_, step);
+        return {*begin_, *end_, step};
     }
 
     iter begin() const { return begin_; }
@@ -167,12 +168,46 @@ private:
 
 template <typename T>
 range_proxy<T> range(T begin, T end) {
-    return range_proxy<T>(begin, end);
+    return {begin, end};
 }
 
 template <typename T>
 infinite_range_proxy<T> range(T begin) {
-    return infinite_range_proxy<T>(begin);
+    return {begin};
+}
+
+namespace traits {
+
+template <typename C>
+struct has_size {
+    template <typename T>
+    static constexpr auto check(T*) ->
+        typename std::is_integral<
+            decltype(std::declval<T const>().size())>::type;
+
+    template <typename>
+    static constexpr auto check(...) -> std::false_type;
+
+    using type = decltype(check<C>(0));
+    static constexpr bool value = type::value;
+};
+
+} // namespace traits
+
+template <typename C, typename = typename std::enable_if<traits::has_size<C>::value>>
+auto indices(C const& cont) -> range_proxy<decltype(cont.size())> {
+    return {0, cont.size()};
+}
+
+template <typename T, std::size_t N>
+range_proxy<std::size_t> indices(T (&)[N]) {
+    return {0, N};
+}
+
+template <typename T>
+range_proxy<typename std::initializer_list<T>::size_type>
+indices(std::initializer_list<T>&& cont) {
+    return {0, cont.size()};
 }
 
 } } // namespace util::lang

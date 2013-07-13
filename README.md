@@ -1,3 +1,5 @@
+## Re-imagining the `for` loop
+
 C++11 now knows two distinct types of `for` loops: the classic loop over an “index” and the range-based `for` loop which vastly simplifies the iteration over a range specified by a pair of iterators.
 
 By contrast, Python knows only one loop type – roughly equivalent to the range-based for loop. In fact, loops over indices are exceedingly rare, but made possible by the use of the `range` method:
@@ -31,11 +33,25 @@ for (auto i : range(100).step(-3))
 
 `range` with a single argument deviates from the Python semantic and creates an endless loop, unless it’s interrupted manually. This is an interesting use-case that cannot be modelled in Python using `range`.
 
-It might be worth thinking about an alternative syntax for this, though, since it means that *another* common use-case – iterating from the start index of a range until its end – is made more complicated: in Python you’d simply write `range(len(container))`. `range.hpp` on the other hand requires one to write `range(0u, container.size())`.
+## Iterating over container indices
 
-Adding `.step(…)` to the end specifies a step size instead of the default, 1.
+In Python, the one-argument version of `range` is often used to iterate over the indices of a container via `range(len(container))`. Because that overload creates an infinite range in our C++ library, we cannot use this idiom.
+
+But we can do better anyway. For those few cases where we actually want to iterate over a container’s indices, we just use the `indices` function:
+
+```c++
+std::vector<int> x{1, 2, 3};
+for (auto i : indices(x))
+    cout << i << '\n';
+```
+
+This works as expected for *any* type which has a member function `size() const` that returns some integral type. It also works with `initializer_list`s and C-style fixed-size arrays.
+
+Adding `.step(…)` to the end of either `range` or `indices` specifies a step size instead of the default, 1.
 
 The construct works for arbitrary types which fulfil the interface requirements (incrementing, copying, equality comparison, default construction in the case of infinite ranges).
+
+## Performance (the cost of beauty)
 
 I haven’t done a thorough analysis but the disassembly of a very similar code shows that the above compiles down to **identical** code to a classical `for` loop; that is, the first above code produces equivalent machine code to
 
@@ -43,3 +59,5 @@ I haven’t done a thorough analysis but the disassembly of a very similar code 
 for (int i = 0; i < 5; ++i)
     cout << i << "\n";
 ```
+
+**☞ Beauty is free.**
