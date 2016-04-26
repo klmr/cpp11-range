@@ -45,11 +45,13 @@ for (auto i : indices(x))
     cout << i << '\n';
 ```
 
-This works as expected for *any* type which has a member function `size() const` that returns some integral type. It also works with `initializer_list`s and C-style fixed-size arrays.
+This works as expected for *any* type which has a member function `size() const` that returns some integral type. It also works with `initializer_list`s and C-style fixed-size arrays.<sup id="a1">[1](#f1)</sup>
 
 Adding `.step(…)` to the end of either `range` or `indices` specifies a step size instead of the default, 1.
 
 The construct works for arbitrary types which fulfil the interface requirements (incrementing, copying, equality comparison, default construction in the case of infinite ranges).
+
+**<sup id="f1">1</sup>** This includes string literals, which are C-style strings that include null termination; this may lead to surprising results, because `indices("test")` results in 0, 1, 2, 3, 4, whereas `indices(std::string{"test"})` results in 0, 1, 2, 3. [↩](#a1)
 
 ## Performance (the cost of beauty)
 
