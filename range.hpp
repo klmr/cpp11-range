@@ -181,12 +181,12 @@ namespace traits {
 template <typename C>
 struct has_size {
     template <typename T>
-    static constexpr auto check(T*) ->
+    static auto check(T*) ->
         typename std::is_integral<
             decltype(std::declval<T const>().size())>::type;
 
     template <typename>
-    static constexpr auto check(...) -> std::false_type;
+    static auto check(...) -> std::false_type;
 
     using type = decltype(check<C>(0));
     static constexpr bool value = type::value;
