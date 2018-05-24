@@ -101,6 +101,8 @@ struct range_proxy {
 
     iter end() const { return end_; }
 
+    size_t size() const { return *end_ - *begin_; }
+
 private:
     iter begin_;
     iter end_;
