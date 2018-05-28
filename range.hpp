@@ -44,7 +44,7 @@ protected:
 template <typename T>
 struct range_proxy {
     struct iterator : detail::range_iter_base<T> {
-      iterator(T current) : detail::range_iter_base<T>(current) { }
+        iterator(T current) : detail::range_iter_base<T>(current) { }
     };
 
     struct step_range_proxy {
