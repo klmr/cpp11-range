@@ -43,8 +43,8 @@ protected:
 
 template <typename T>
 struct range_proxy {
-    struct iter : detail::range_iter_base<T> {
-        iter(T current) : detail::range_iter_base<T>(current) { }
+    struct iterator : detail::range_iter_base<T> {
+        iterator(T current) : detail::range_iter_base<T>(current) { }
     };
 
     struct step_range_proxy {
@@ -97,23 +97,23 @@ struct range_proxy {
         return {*begin_, *end_, step};
     }
 
-    iter begin() const { return begin_; }
+    iterator begin() const { return begin_; }
 
-    iter end() const { return end_; }
+    iterator end() const { return end_; }
 
 private:
-    iter begin_;
-    iter end_;
+    iterator begin_;
+    iterator end_;
 };
 
 template <typename T>
 struct infinite_range_proxy {
-    struct iter : detail::range_iter_base<T> {
-        iter(T current = T()) : detail::range_iter_base<T>(current) { }
+    struct iterator : detail::range_iter_base<T> {
+        iterator(T current = T()) : detail::range_iter_base<T>(current) { }
 
-        bool operator ==(iter const&) const { return false; }
+        bool operator ==(iterator const&) const { return false; }
 
-        bool operator !=(iter const&) const { return true; }
+        bool operator !=(iterator const&) const { return true; }
     };
 
     struct step_range_proxy {
@@ -158,12 +158,12 @@ struct infinite_range_proxy {
         return step_range_proxy(*begin_, step);
     }
 
-    iter begin() const { return begin_; }
+    iterator begin() const { return begin_; }
 
-    iter end() const { return iter(); }
+    iterator end() const { return iterator(); }
 
 private:
-    iter begin_;
+    iterator begin_;
 };
 
 template <typename T>
