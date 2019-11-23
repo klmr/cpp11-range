@@ -34,4 +34,35 @@ int main() {
 
     for (auto i : indices("foobar").step(2))
         cout << i << '\n';
+
+    auto s1 = range(1, 8).step(2).size();
+    cout << "Expected result for 'range(1, 8).step(2).size()' is 4: " << std::boolalpha << (s1 == 4) << '\n';
+    if (s1 != 4) {
+        cout << " - found " << s1 << " instead!\n";
+    }
+
+    auto s2 = range(8.0, 1.0).step(-2.0).size();
+    cout << "Expected result for 'range(8.0, 1.0).step(-2.0).size()' is 4: " << std::boolalpha << (s2 == 4) << '\n';
+    if (s2 != 4) {
+        cout << " - found " << s2 << " instead!\n";
+    }
+
+    auto s3 = range(8, 1).step(-2).size();
+    cout << "Expected result for 'range(8, 1).step(-2).size()' is 4: " << std::boolalpha << (s3 == 4) << '\n';
+    if (s3 != 4) {
+        cout << " - found " << s3 << " instead!\n";
+    }
+
+    auto s4 = range(0.1, 0.11).step(2).size();
+    cout << "Expected result for 'range(0.1, 0.11).step(2).size()' is 1: " << std::boolalpha << (s4 == 1) << '\n';
+    if (s4 != 1) {
+        cout << " - found " << s4 << " instead!\n";
+    }
+
+    auto s5 = range(-7, 1).step(7).size();
+    cout << "Expected result for 'range(-7, 1).step(7).size()' is 1: " << std::boolalpha << (s5 == 2) << '\n';
+    if (s5 != 2) {
+        cout << " - found " << s5 << " instead!\n";
+    }
+
 }

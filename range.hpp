@@ -1,6 +1,7 @@
 #ifndef UTIL_LANG_RANGE_HPP
 #define UTIL_LANG_RANGE_HPP
 
+#include <cmath>
 #include <iterator>
 #include <type_traits>
 
@@ -50,12 +51,14 @@ struct range_proxy {
     struct step_range_proxy {
         struct iter : detail::range_iter_base<T> {
             iter(T current, T step)
-                : detail::range_iter_base<T>(current), step(step) { }
+                : detail::range_iter_base<T>(current), step_(step) { }
 
             using detail::range_iter_base<T>::current;
 
+            T step() const {return step_;};
+
             iter& operator ++() {
-                current += step;
+                current += step_;
                 return *this;
             }
 
@@ -67,8 +70,8 @@ struct range_proxy {
 
             // Loses commutativity. Iterator-based ranges are simply broken. :-(
             bool operator ==(iter const& other) const {
-                return step > 0 ? current >= other.current
-                                : current < other.current;
+                return step_ > 0 ? current >= other.current
+                                 : current < other.current;
             }
 
             bool operator !=(iter const& other) const {
@@ -76,7 +79,7 @@ struct range_proxy {
             }
 
         private:
-            T step;
+            T step_;
         };
 
         step_range_proxy(T begin, T end, T step)
@@ -85,6 +88,26 @@ struct range_proxy {
         iter begin() const { return begin_; }
 
         iter end() const { return end_; }
+
+        size_t size() const { 
+            // increasing and null range
+            if (*end_ >= *begin_) {
+                if (begin_.step() < T(0)) {
+                    return 0;
+                }
+                return static_cast<size_t>(std::ceil(std::abs(double(*end_ - *begin_) / double(begin_.step()))));
+            }
+            // decreasing range
+            if (*end_ < *begin_) {
+                if (begin_.step() > T(0)) {
+                    return 0;
+                }
+                return static_cast<size_t>(std::ceil(std::abs(double(*begin_ - *end_) / double(begin_.step()))));
+            }
+            // other behaviour
+            //  - null step
+            return static_cast<size_t>(-1);
+        }
 
     private:
         iter begin_;
