@@ -22,9 +22,7 @@ struct range_iter_base : std::iterator<std::input_iterator_tag, T> {
     }
 
     range_iter_base operator ++(int) {
-        auto copy = *this;
-        ++*this;
-        return copy;
+        return (*this)++;
     }
 
     bool operator ==(range_iter_base const& other) const {
@@ -60,9 +58,7 @@ struct range_proxy {
             }
 
             iter operator ++(int) {
-                auto copy = *this;
-                ++*this;
-                return copy;
+                return (*this)++;
             }
 
             // Loses commutativity. Iterator-based ranges are simply broken. :-(
@@ -129,9 +125,7 @@ struct infinite_range_proxy {
             }
 
             iter operator ++(int) {
-                auto copy = *this;
-                ++*this;
-                return copy;
+                return (*this)++;
             }
 
             bool operator ==(iter const&) const { return false; }
