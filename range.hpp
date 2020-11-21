@@ -43,68 +43,69 @@ protected:
 } // namespace detail
 
 template <typename T>
+struct step_range_proxy {
+    struct iterator : detail::range_iter_base<T> {
+        iterator(T current, T step)
+            : detail::range_iter_base<T>(current), step_(step) { }
+
+        using detail::range_iter_base<T>::current;
+
+        iterator& operator ++() {
+            current += step_;
+            return *this;
+        }
+
+        iterator operator ++(int) {
+            auto copy = *this;
+            ++*this;
+            return copy;
+        }
+
+        // Loses commutativity. Iterator-based ranges are simply broken. :-(
+        bool operator ==(iterator const& other) const {
+            return step_ > 0 ? current >= other.current
+                             : current < other.current;
+        }
+
+        bool operator !=(iterator const& other) const {
+            return not (*this == other);
+        }
+
+        T step_;
+    };
+
+    step_range_proxy(T begin, T end, T step)
+        : begin_(begin, step), end_(end, step) { }
+
+    iterator begin() const { return begin_; }
+
+    iterator end() const { return end_; }
+
+    std::size_t size() const { 
+        if (*end_ >= *begin_) {
+            // Increasing and empty range
+            if (begin_.step_ < T{0}) return 0;
+        } else {
+            // Decreasing range
+            if (begin_.step_ > T{0}) return 0;
+        }
+        return std::ceil(std::abs(static_cast<double>(*end_ - *begin_) / begin_.step_));
+    }
+
+private:
+    iterator begin_;
+    iterator end_;
+};
+
+template <typename T>
 struct range_proxy {
     struct iterator : detail::range_iter_base<T> {
         iterator(T current) : detail::range_iter_base<T>(current) { }
     };
 
-    struct step_range_proxy {
-        struct iterator : detail::range_iter_base<T> {
-            iterator(T current, T step)
-                : detail::range_iter_base<T>(current), step_(step) { }
-
-            using detail::range_iter_base<T>::current;
-
-            iterator& operator ++() {
-                current += step_;
-                return *this;
-            }
-
-            iterator operator ++(int) {
-                auto copy = *this;
-                ++*this;
-                return copy;
-            }
-
-            // Loses commutativity. Iterator-based ranges are simply broken. :-(
-            bool operator ==(iterator const& other) const {
-                return step_ > 0 ? current >= other.current
-                                 : current < other.current;
-            }
-
-            bool operator !=(iterator const& other) const {
-                return not (*this == other);
-            }
-
-            T step_;
-        };
-
-        step_range_proxy(T begin, T end, T step)
-            : begin_(begin, step), end_(end, step) { }
-
-        iterator begin() const { return begin_; }
-
-        iterator end() const { return end_; }
-
-        std::size_t size() const { 
-            if (*end_ >= *begin_) {
-                // Increasing and empty range
-                if (begin_.step_ < T{0}) return 0;
-            } else {
-                // Decreasing range
-                if (begin_.step_ > T{0}) return 0;
-            }
-            return std::ceil(std::abs(static_cast<double>(*end_ - *begin_) / begin_.step_));
-        }
-
-    private:
-        iterator begin_;
-        iterator end_;
-    };
-
     range_proxy(T begin, T end) : begin_(begin), end_(end) { }
 
-    step_range_proxy step(T step) {
+    step_range_proxy<T> step(T step) {
         return {*begin_, *end_, step};
     }
 
@@ -120,6 +121,43 @@ private:
 };
 
 template <typename T>
+struct step_inf_range_proxy {
+    struct iterator : detail::range_iter_base<T> {
+        iterator(T current = T(), T step = T())
+            : detail::range_iter_base<T>(current), step(step) { }
+
+        using detail::range_iter_base<T>::current;
+
+        iterator& operator ++() {
+            current += step;
+            return *this;
+        }
+
+        iterator operator ++(int) {
+            auto copy = *this;
+            ++*this;
+            return copy;
+        }
+
+        bool operator ==(iterator const&) const { return false; }
+
+        bool operator !=(iterator const&) const { return true; }
+
+    private:
+        T step;
+    };
+
+    step_inf_range_proxy(T begin, T step) : begin_(begin, step) { }
+
+    iterator begin() const { return begin_; }
+
+    iterator end() const { return  iterator(); }
+
+private:
+    iterator begin_;
+};
+
+template <typename T>
 struct infinite_range_proxy {
     struct iterator : detail::range_iter_base<T> {
         iterator(T current = T()) : detail::range_iter_base<T>(current) { }
@@ -129,46 +167,10 @@ struct infinite_range_proxy {
         bool operator !=(iterator const&) const { return true; }
     };
 
-    struct step_range_proxy {
-        struct iterator : detail::range_iter_base<T> {
-            iterator(T current = T(), T step = T())
-                : detail::range_iter_base<T>(current), step(step) { }
-
-            using detail::range_iter_base<T>::current;
-
-            iterator& operator ++() {
-                current += step;
-                return *this;
-            }
-
-            iterator operator ++(int) {
-                auto copy = *this;
-                ++*this;
-                return copy;
-            }
-
-            bool operator ==(iterator const&) const { return false; }
-
-            bool operator !=(iterator const&) const { return true; }
-
-        private:
-            T step;
-        };
-
-        step_range_proxy(T begin, T step) : begin_(begin, step) { }
-
-        iterator begin() const { return begin_; }
-
-        iterator end() const { return  iterator(); }
-
-    private:
-        iterator begin_;
-    };
-
     infinite_range_proxy(T begin) : begin_(begin) { }
 
-    step_range_proxy step(T step) {
-        return step_range_proxy(*begin_, step);
+    step_inf_range_proxy<T> step(T step) {
+        return {*begin_, step};
     }
 
     iterator begin() const { return begin_; }

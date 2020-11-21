@@ -1,67 +1,112 @@
-#include <iostream>
-#include <vector>
-
 #include "range.hpp"
 
-using std::cout;
-using util::lang::range;
-using util::lang::indices;
+#include <algorithm>
+#include <iostream>
+#include <iterator>
+#include <vector>
+
+template <typename R>
+void print_range(R const& range) {
+    using T = typename std::iterator_traits<decltype(range.begin())>::value_type;
+    std::copy(range.begin(), range.end(), std::ostream_iterator<T>(std::cout, " "));
+    std::cout << "\n";
+}
+
+template <typename R>
+std::size_t manual_range_size(R const& range) {
+    std::size_t size = 0;
+    for (auto const& _ : range) ++size, (void) _;
+    return size;
+}
+
+namespace util { namespace lang {
+
+// template <typename T>
+// struct is_a_step_range : std::false_type {};
+
+// template <typename T>
+// struct is_a_step_range<typename range_proxy<T>::step_range_proxy> : std::true_type {};
+
+template <typename T>
+std::ostream& operator <<(std::ostream& out, step_range_proxy<T> const& r) {
+    return out << "range(" << *r.begin() << ", " << *r.end() << ")"
+        << ".step(" << r.begin().step_ << ")";
+}
+
+template <typename T>
+std::ostream& operator <<(std::ostream& out, range_proxy<T> const& r) {
+    return out << "range(" << *r.begin() << ", " << *r.end() << ")";
+}
+
+}}
+
+template <typename R>
+void test_range_size(R const& range) {
+    auto const real_size = manual_range_size(R{range});
+    if (real_size == range.size()) {
+        std::cout << range << ".size() = " << real_size << "\n";
+    } else {
+        std::cout << "ERROR: " << range << ".size() ≠ " << real_size
+            << " (was " << range.size() << ")!\n";
+    }
+}
 
 int main() {
-    for (auto i : range(1, 5))
-        cout << i << "\n";
+    using std::cout;
+    using util::lang::range;
+    using util::lang::indices;
 
-    for (auto u : range(0u))
-        if (u == 3u) break;
-        else         cout << u << "\n";
+    cout << "Basic usage: iterating over a range of numbers.\n";
+    for (auto i : range(1, 5)) {
+        cout << i << " ";
+    }
+    cout << "\n";
 
-    for (auto c : range('a', 'd'))
-        cout << c << "\n";
+    cout << "Ranges can be “infinite”.\n";
+    for (auto u : range(0u)) {
+        if (u == 3u) {
+            cout << "\n";
+            break;
+        }
+        cout << u << " ";
+    }
 
-    for (auto u : range(20u, 29u).step(2u))
-        cout << u << "\n";
+    cout << "Ranges can be non-numeric, as long as the type is incrementable and equality comparable.\n";
+    print_range(range('a', 'd'));
 
-    for (auto i : range(100).step(-3))
-        if (i < 90) break;
-        else        cout << i << "\n";
+    cout << "Ranges can be non-contiguous.\n";
+    print_range(range(20u, 29u).step(2u));
 
+    cout << "… and we can even step backwards.\n";
+    for (auto i : range(100).step(-3)) {
+        if (i < 90) {
+            cout << "\n";
+            break;
+        }
+        cout << i << " ";
+    }
+    cout << "\n";
+
+    cout << "Container indices are a special case of ranges.\n";
     std::vector<int> x{1, 2, 3};
-    for (auto i : indices(x))
-        cout << i << '\n';
+    print_range(indices(x));
 
-    for (auto i : indices({"foo", "bar"}))
-        cout << i << '\n';
+    print_range(indices({"foo", "bar"}));
 
-    for (auto i : indices("foobar").step(2))
-        cout << i << '\n';
+    cout << "Strings are containers, too.\n";
+    print_range(indices("foobar").step(2));
+    cout << "\n";
 
-    auto s1 = range(1, 8).step(2).size();
-    cout << "Expected result for 'range(1, 8).step(2).size()' is 4: " << std::boolalpha << (s1 == 4) << '\n';
-    if (s1 != 4) {
-        cout << " - found " << s1 << " instead!\n";
-    }
+    // TODO: Test cases; do something smarter with them.
+    print_range(range(6, 10));
+    print_range(range(1, 8).step(2));
+    print_range(range(8, 1).step(-2));
+    print_range(range(8.0, 1.0).step(-2.0));
+    cout << "\n";
 
-    auto s2 = range(8.0, 1.0).step(-2.0).size();
-    cout << "Expected result for 'range(8.0, 1.0).step(-2.0).size()' is 4: " << std::boolalpha << (s2 == 4) << '\n';
-    if (s2 != 4) {
-        cout << " - found " << s2 << " instead!\n";
-    }
-
-    auto s3 = range(8, 1).step(-2).size();
-    cout << "Expected result for 'range(8, 1).step(-2).size()' is 4: " << std::boolalpha << (s3 == 4) << '\n';
-    if (s3 != 4) {
-        cout << " - found " << s3 << " instead!\n";
-    }
-
-    auto s4 = range(0.1, 0.11).step(2).size();
-    cout << "Expected result for 'range(0.1, 0.11).step(2).size()' is 1: " << std::boolalpha << (s4 == 1) << '\n';
-    if (s4 != 1) {
-        cout << " - found " << s4 << " instead!\n";
-    }
-
-    auto s5 = range(-7, 1).step(7).size();
-    cout << "Expected result for 'range(-7, 1).step(7).size()' is 1: " << std::boolalpha << (s5 == 2) << '\n';
-    if (s5 != 2) {
-        cout << " - found " << s5 << " instead!\n";
-    }
+    test_range_size(range(1, 8).step(2));
+    test_range_size(range(8.0, 1.0).step(-2.0));
+    test_range_size(range(8, 1).step(-2));
+    test_range_size(range(0.1, 0.11).step(2));
+    test_range_size(range(-7, 1).step(7));
 }
