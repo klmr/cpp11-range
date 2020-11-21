@@ -76,7 +76,6 @@ struct range_proxy {
                 return not (*this == other);
             }
 
-        private:
             T step_;
         };
 
@@ -87,24 +86,15 @@ struct range_proxy {
 
         iterator end() const { return end_; }
 
-        size_t size() const { 
-            // increasing and null range
+        std::size_t size() const { 
             if (*end_ >= *begin_) {
-                if (begin_.step() < T(0)) {
-                    return 0;
-                }
-                return static_cast<size_t>(std::ceil(std::abs(double(*end_ - *begin_) / double(begin_.step()))));
+                // Increasing and empty range
+                if (begin_.step_ < T{0}) return 0;
+            } else {
+                // Decreasing range
+                if (begin_.step_ > T{0}) return 0;
             }
-            // decreasing range
-            if (*end_ < *begin_) {
-                if (begin_.step() > T(0)) {
-                    return 0;
-                }
-                return static_cast<size_t>(std::ceil(std::abs(double(*begin_ - *end_) / double(begin_.step()))));
-            }
-            // other behaviour
-            //  - null step
-            return static_cast<size_t>(-1);
+            return std::ceil(std::abs(static_cast<double>(*end_ - *begin_) / begin_.step_));
         }
 
     private:
