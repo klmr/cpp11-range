@@ -12,6 +12,45 @@ void print_range(R const& range) {
     std::cout << "\n";
 }
 
+template <typename R>
+std::size_t manual_range_size(R const& range) {
+    std::size_t size = 0;
+    for (auto const& _ : range) ++size, (void) _;
+    return size;
+}
+
+namespace util { namespace lang {
+
+// template <typename T>
+// struct is_a_step_range : std::false_type {};
+
+// template <typename T>
+// struct is_a_step_range<typename range_proxy<T>::step_range_proxy> : std::true_type {};
+
+template <typename T>
+std::ostream& operator <<(std::ostream& out, step_range_proxy<T> const& r) {
+    return out << "range(" << *r.begin() << ", " << *r.end() << ")"
+        << ".step(" << r.begin().step_ << ")";
+}
+
+template <typename T>
+std::ostream& operator <<(std::ostream& out, range_proxy<T> const& r) {
+    return out << "range(" << *r.begin() << ", " << *r.end() << ")";
+}
+
+}}
+
+template <typename R>
+void test_range_size(R const& range) {
+    auto const real_size = manual_range_size(R{range});
+    if (real_size == range.size()) {
+        std::cout << range << ".size() = " << real_size << "\n";
+    } else {
+        std::cout << "ERROR: " << range << ".size() ≠ " << real_size
+            << " (was " << range.size() << ")!\n";
+    }
+}
+
 int main() {
     using std::cout;
     using util::lang::range;
@@ -64,4 +103,10 @@ int main() {
     print_range(range(8, 1).step(-2));
     print_range(range(8.0, 1.0).step(-2.0));
     cout << "\n";
+
+    test_range_size(range(1, 8).step(2));
+    test_range_size(range(8.0, 1.0).step(-2.0));
+    test_range_size(range(8, 1).step(-2));
+    test_range_size(range(0.1, 0.11).step(2));
+    test_range_size(range(-7, 1).step(7));
 }
