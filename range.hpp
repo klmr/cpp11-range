@@ -181,9 +181,10 @@ private:
     iterator begin_;
 };
 
-template <typename T>
-range_proxy<T> range(T begin, T end) {
-    return {begin, end};
+template <typename T, typename U>
+auto range(T begin, U end) -> range_proxy<typename std::common_type<T, U>::type> {
+    using C = typename std::common_type<T, U>::type;
+    return {static_cast<C>(begin), static_cast<C>(end)};
 }
 
 template <typename T>

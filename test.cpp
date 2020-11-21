@@ -64,6 +64,13 @@ int main() {
     print_range(range(8.0, 1.0).step(-2.0));
     cout << "\n";
 
+    cout << "Mixed type inference:\n";
+    print_range(range(0, sizeof "Hello"));
+    cout << "Inferred as mangled type name "
+        << typeid(typename std::iterator_traits<decltype(range(0, sizeof "Hello").begin())>::value_type).name()
+        << " (expected: " << typeid(decltype(sizeof "Hello")).name() << ")\n";
+    cout << "\n";
+
     test_range_size(range(1, 8).step(2));
     test_range_size(range(8.0, 1.0).step(-2.0));
     test_range_size(range(8, 1).step(-2));
