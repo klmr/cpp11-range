@@ -64,5 +64,4 @@ int main() {
     if (s5 != 2) {
         cout << " - found " << s5 << " instead!\n";
     }
-
 }
