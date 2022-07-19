@@ -1,6 +1,11 @@
 #ifndef UTIL_LANG_RANGE_HPP
 #define UTIL_LANG_RANGE_HPP
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#endif
+
 #include <cmath>
 #include <iterator>
 #include <type_traits>
@@ -33,7 +38,7 @@ struct range_iter_base : std::iterator<std::input_iterator_tag, T> {
     }
 
     bool operator !=(range_iter_base const& other) const {
-        return not (*this == other);
+        return !(*this == other);
     }
 
 protected:
@@ -68,7 +73,7 @@ struct step_range_proxy {
         }
 
         bool operator !=(iterator const& other) const {
-            return not (*this == other);
+            return !(*this == other);
         }
 
         T step_;
