@@ -16,6 +16,8 @@ C++11 effortlessly allows the same but there is no standard library function to 
 The header `range.hpp` provides a very basic implementation for this. It allows running the following code:
 
 ```c++
+using util::lang::range;
+
 for (auto i : range(1, 5))
     cout << i << "\n";
 
@@ -40,6 +42,8 @@ In Python, the one-argument version of `range` is often used to iterate over the
 But we can do better anyway. For those few cases where we actually want to iterate over a container’s indices, we just use the `indices` function:
 
 ```c++
+using util::lang::indices;
+
 std::vector<int> x{1, 2, 3};
 for (auto i : indices(x))
     cout << i << '\n';
